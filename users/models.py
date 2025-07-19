@@ -18,7 +18,7 @@ class UserManager(BaseUserManager):
     
     def create_user(self, email, password=None, **extra_fields):
         """Create and return a regular user with an email and password."""
-        if not email:localhostlocalhoslocalhostlocalhostlocalhostt
+        if not email:
             raise ValueError('The Email field must be set')
         
         email = self.normalize_email(email)
@@ -133,6 +133,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
             if not User.objects.filter(referral_code=code).exists():
                 return code
+    
+    def get_full_name(self):
+        """Return the full name of the user."""
+        return f"{self.first_name} {self.last_name}".strip() or self.email
+    
+    def get_short_name(self):
+        """Return the short name for the user."""
+        return self.first_name or self.email
 
 
 class UserProfile(models.Model):
@@ -270,6 +278,7 @@ class UserActivity(models.Model):
     ACTION_CHOICES = [
         ('login', 'Login'),
         ('logout', 'Logout'),
+        ('registration', 'Registration'),
         ('password_change', 'Password Change'),
         ('email_verification', 'Email Verification'),
         ('profile_update', 'Profile Update'),

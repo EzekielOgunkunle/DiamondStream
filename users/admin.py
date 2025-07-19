@@ -13,6 +13,14 @@ from django.utils.safestring import mark_safe
 from .models import User, UserProfile, UserWallet, UserActivity
 
 
+class UserWalletInline(admin.TabularInline):
+    """Inline editor for user wallets."""
+    model = UserWallet
+    extra = 0
+    fields = ['currency', 'address', 'label', 'is_primary', 'is_verified']
+    readonly_fields = ['created_at']
+
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     """Enhanced User admin with custom fields and actions."""
@@ -59,6 +67,7 @@ class UserAdmin(BaseUserAdmin):
     )
     
     actions = ['activate_users', 'deactivate_users', 'verify_users']
+    inlines = [UserWalletInline]
     
     def investment_count(self, obj):
         """Show user's total investment count."""
@@ -86,14 +95,6 @@ class UserAdmin(BaseUserAdmin):
         updated = queryset.update(is_verified=True)
         self.message_user(request, f'{updated} users were successfully verified.')
     verify_users.short_description = 'Verify selected users'
-
-
-class UserWalletInline(admin.TabularInline):
-    """Inline editor for user wallets."""
-    model = UserWallet
-    extra = 0
-    fields = ['currency', 'address', 'label', 'is_primary', 'is_verified']
-    readonly_fields = ['created_at']
 
 
 @admin.register(UserProfile)
@@ -131,8 +132,6 @@ class UserProfileAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
-    inlines = [UserWalletInline]
     
     actions = ['approve_kyc', 'reject_kyc']
     
